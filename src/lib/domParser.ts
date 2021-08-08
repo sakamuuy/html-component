@@ -27,7 +27,7 @@ async function readHTML(path: string) {
   return raw.replace(/(\r|\n|\r\n)/g, '')
 }
 
-export async function parse(path: string, onEnd: (result: nyaan.HTMLObj<keyof HTMLElementTagNameMap>) => void) {
+export async function parseHTMLComponent(path: string, onEnd: (result: nyaan.HTMLObj<keyof HTMLElementTagNameMap>) => void) {
   let root: Wrapper
   let opening: Wrapper | null
   const editingStack: Wrapper[] = []

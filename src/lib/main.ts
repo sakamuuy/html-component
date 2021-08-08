@@ -1,4 +1,4 @@
-import { parse } from './domParser'
+import { parseHTMLComponent } from './domParser'
 import { transpile } from './transpiler'
 
 const PATH = 'Example/src/components/List/index.html'
