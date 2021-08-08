@@ -10,4 +10,6 @@ export declare namespace nyaan {
     content: string[]
     isRoot: boolean
   }
+
+  type $NYAAN_COMPONENT = "$NYAAN_COMPONENT"
 }
