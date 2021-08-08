@@ -18,6 +18,7 @@
     "@types/estraverse": "^5.1.1",
     "@types/estree": "^0.0.50",
     "@types/htmlparser2": "^3.10.3",
+    "@types/mkdirp": "^1.0.2",
     "@types/node": "^16.4.13",
     "@types/typescript": "^2.0.0",
     "eslint": "^7.32.0",
@@ -34,6 +35,7 @@
     "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
     "estraverse": "^5.2.0",
-    "htmlparser2": "^6.1.0"
+    "htmlparser2": "^6.1.0",
+    "mkdirp": "^1.0.4"
   }
 }

@@ -4,6 +4,7 @@ import estraverse from 'estraverse'
 import { nyaan } from './types'
 import { parseHTMLComponent } from './domParser'
 import escodegen from 'escodegen'
+import mkdirp from 'mkdirp'
 
 let componentDeclaration: string
 const NYAAN_CALEE: nyaan.$NYAAN_COMPONENT = '$NYAAN_COMPONENT'
@@ -46,21 +47,25 @@ async function readFile(path: string) {
   return await fs.readFile(path, 'utf-8')
 }
 
-function transpileJS(jsStr: string) {
+function transpileJS(jsStr: string, onEnd: (result: string) => void) {
   const ast = esprima.parseScript(jsStr)
 
   searchNyaan(ast, (componentPath) => {
     parseHTMLComponent(componentPath, (result) => {
       const replacedAst = replaceNyaan(ast, result)
-      console.log('replaced')
-      console.log(escodegen.generate(replacedAst))
+      onEnd(escodegen.generate(replacedAst))
     })
   })
 }
 
 export async function transpile(path: string) {
   if (/\.js$/.test(path)) {
-    transpileJS(await readFile(path))
+    transpileJS(await readFile(path), (result) => {
+      const paths = path.split('/')
+      const fileName = paths.pop()
+      paths.push(`_generated_${fileName}`)
+      fs.writeFile(paths.join('/'), result, 'utf-8')
+    })
   } else if (/\.ts$/.test(path)) {
   } else {
     throw new Error('Invalid path of transpile target')
