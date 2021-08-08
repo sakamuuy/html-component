@@ -1,10 +1,10 @@
 {
   "name": "html-component",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsnd --respawn server.ts",
+    "start": "ts-node src/index.ts",
     "lint": "eslint src/**/*.ts --fix",
     "format": "prettier --write .",
     "fix": "npx tsc --noEmit && npm run format && npm run lint"
@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/htmlparser2": "^3.10.3",
     "@types/node": "^16.4.13",
     "@types/typescript": "^2.0.0",
     "eslint": "^7.32.0",
@@ -24,5 +25,8 @@
   },
   "engines": {
     "node": ">=16.4.0"
+  },
+  "dependencies": {
+    "htmlparser2": "^6.1.0"
   }
 }
