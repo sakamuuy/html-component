@@ -1,3 +1,3 @@
-import { parse } from './lib/domParser'
+import { main } from './lib/main'
 
-parse('Example/src/components/Tag/index.html')
+main()

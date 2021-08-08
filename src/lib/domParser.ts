@@ -7,25 +7,27 @@ type Wrapper = {
   el: nyaan.HTMLObj<keyof HTMLElementTagNameMap>
 }
 
-const createHTMLObj = <T extends keyof HTMLElementTagNameMap>(tagName: keyof HTMLElementTagNameMap, attributes: nyaan.HTMLObj<T>['attributes'], isRoot: boolean) => {
+const createHTMLObj = <T extends keyof HTMLElementTagNameMap>(
+  tagName: keyof HTMLElementTagNameMap,
+  attributes: nyaan.HTMLObj<T>['attributes'],
+  isRoot: boolean
+) => {
   const obj: nyaan.HTMLObj<T> = {
     tagName,
     attributes,
     children: [],
-    isRoot: isRoot
+    content: [],
+    isRoot: isRoot,
   }
   return obj
 }
 
 async function readHTML(path: string) {
-  return await fs.readFile(path, 'utf-8')
+  const raw = await fs.readFile(path, 'utf-8')
+  return raw.replace(/(\r|\n|\r\n)/g, '')
 }
 
-// function findOpenParent(stack: Wrapper[]) {
-//   return 
-// }
-
-export async function parse(path: string) {
+export async function parse(path: string, onEnd: (result: nyaan.HTMLObj<keyof HTMLElementTagNameMap>) => void) {
   let root: Wrapper
   let opening: Wrapper | null
   const editingStack: Wrapper[] = []
@@ -34,7 +36,7 @@ export async function parse(path: string) {
     onopentag(name: keyof HTMLElementTagNameMap, attributes) {
       const obj: Wrapper = {
         isClosed: false,
-        el: createHTMLObj<typeof name>(name, attributes, root? false : true)
+        el: createHTMLObj<typeof name>(name, attributes, root ? false : true),
       }
 
       if (!root) {
@@ -51,14 +53,15 @@ export async function parse(path: string) {
     },
     ontext(text) {
       if (opening) {
-        opening.el.children.push(text)
+        text = text.trim()
+        if (text && text.length) opening.el.content.push(text)
       }
     },
     onclosetag(tagname) {
       if (opening?.el.tagName === tagname) {
         opening.isClosed = true
         editingStack.pop()
-        const openingParent = editingStack.reverse().find((obj) => !obj.isClosed)  
+        const openingParent = editingStack.reverse().find((obj) => !obj.isClosed)
         if (openingParent) {
           opening = openingParent
         }
@@ -68,10 +71,10 @@ export async function parse(path: string) {
       }
     },
     onend() {
-      console.log(JSON.stringify(root, null , "\t"))
-    }
+      onEnd(root.el)
+    },
   })
 
-  parser.write((await readHTML(path)))
+  parser.write(await readHTML(path))
   parser.end()
 }
