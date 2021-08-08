@@ -13,8 +13,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/escodegen": "^0.0.7",
     "@types/esprima": "^4.0.3",
     "@types/estraverse": "^5.1.1",
+    "@types/estree": "^0.0.50",
     "@types/htmlparser2": "^3.10.3",
     "@types/node": "^16.4.13",
     "@types/typescript": "^2.0.0",
@@ -29,6 +31,7 @@
     "node": ">=16.4.0"
   },
   "dependencies": {
+    "escodegen": "^2.0.0",
     "esprima": "^4.0.1",
     "estraverse": "^5.2.0",
     "htmlparser2": "^6.1.0"

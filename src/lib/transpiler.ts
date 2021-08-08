@@ -3,21 +3,22 @@ import * as esprima from 'esprima'
 import estraverse from 'estraverse'
 import { nyaan } from './types'
 import { parseHTMLComponent } from './domParser'
-import { ObjectExpression } from 'estree'
+import { ObjectExpression, VariableDeclaration } from 'estree'
+import escodegen from 'escodegen'
 
+let componentDeclaration: string;
 const NYAAN_CALEE: nyaan.$NYAAN_COMPONENT = '$NYAAN_COMPONENT'
 
 function searchNyaan(ast: esprima.Program, onFind: (componentPath: string) => void) {
   estraverse.traverse(ast, {
     enter(node, _) {
-      console.log('====start====\n')
-      console.log(node, '\n====end====\n')
       if (node.type === 'VariableDeclarator' && 
         node.init?.type === 'CallExpression' &&
         (node.init.callee as { type: string; name: string}).name === NYAAN_CALEE) {
         let componentPath = (node.init.arguments[0] as {value: string}).value
         if (componentPath.indexOf('.html') === -1) componentPath += '/index.html'
 
+        componentDeclaration = (node.id as {name:string}).name
         onFind(componentPath)   
       }
     },
@@ -26,15 +27,14 @@ function searchNyaan(ast: esprima.Program, onFind: (componentPath: string) => vo
 }
 
 function replaceNyaan(ast: esprima.Program, component: nyaan.HTMLObj<keyof HTMLElementTagNameMap>) {
-  estraverse.traverse(ast, {
+  return estraverse.replace(ast, {
     enter(node, _) {
-      if (node.type === 'CallExpression' &&
-        (node.callee as { name: string }).name === NYAAN_CALEE) {
-        
-          return {
-            type: 'ObjectExpression',
-            properties: component as any
-          } as ObjectExpression
+      if (node.type === 'VariableDeclarator' && 
+        node.init?.type === 'CallExpression' &&
+        (node.init.callee as { type: string; name: string}).name === NYAAN_CALEE) {
+          const componentAst = esprima.parseScript(`${componentDeclaration} = ${JSON.stringify(component)}`)
+
+          return componentAst
       }
     },
     leave(node, parent) {},
@@ -47,11 +47,12 @@ async function readFile(path: string) {
 
 function transpileJS(jsStr: string) {
   const ast = esprima.parseScript(jsStr)
+
   searchNyaan(ast, (componentPath) => {
     parseHTMLComponent(componentPath, (result) => {
       const replacedAst = replaceNyaan(ast, result)
-
-      console.log()
+      console.log('replaced')
+      console.log(escodegen.generate(replacedAst))
     })
   })
 }
@@ -65,3 +66,9 @@ export async function transpile(path: string) {
     throw new Error('Invalid path of transpile target')
   }
 }
+
+// const isNyaanDeclaration = (node:) => (
+//   node.type === 'VariableDeclarator' && 
+//   node.init?.type === 'CallExpression' &&
+//   (node.init.callee as { type: string; name: string}).name === NYAAN_CALEE)
+// )
