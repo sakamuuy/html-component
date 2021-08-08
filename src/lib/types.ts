@@ -11,5 +11,5 @@ export declare namespace nyaan {
     isRoot: boolean
   }
 
-  type $NYAAN_COMPONENT = "$NYAAN_COMPONENT"
+  type $NYAAN_COMPONENT = '$NYAAN_COMPONENT'
 }

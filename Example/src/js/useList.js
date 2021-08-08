@@ -1,6 +1,5 @@
-'use strict';
+'use strict'
 
-(function() {
+;(function () {
   const list = $NYAAN_COMPONENT('Example/src/components/List')
-
 })()
