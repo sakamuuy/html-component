@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "tsnd --respawn server.ts",
     "lint": "eslint src/**/*.ts --fix",
     "format": "prettier --write .",
     "fix": "npx tsc --noEmit && npm run format && npm run lint"

@@ -1,3 +1,1 @@
-const hoge = 'aadsjfad'
-
-;('urusa')
+console.log('hello world')
