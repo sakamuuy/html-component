@@ -8,6 +8,7 @@ export declare namespace nyaan {
     tagName: keyof HTMLElementTagNameMap
     attributes: Properties<T>
     children: Array<HTMLObj<keyof HTMLElementTagNameMap> | string>
+    isRoot: boolean
   }
 
   // type Booleanish = boolean | 'true' | 'false'

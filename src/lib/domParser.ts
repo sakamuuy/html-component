@@ -2,11 +2,12 @@ import fs from 'fs/promises'
 import { Parser } from 'htmlparser2'
 import { nyaan } from './types'
 
-const createHTMLObj = <T extends keyof HTMLElementTagNameMap>(tagName: keyof HTMLElementTagNameMap, attributes: nyaan.HTMLObj<T>['attributes']) => {
+const createHTMLObj = <T extends keyof HTMLElementTagNameMap>(tagName: keyof HTMLElementTagNameMap, attributes: nyaan.HTMLObj<T>['attributes'], isRoot: boolean) => {
   const obj: nyaan.HTMLObj<T> = {
     tagName,
     attributes,
-    children: []
+    children: [],
+    isRoot: isRoot
   }
   return obj
 }
@@ -18,14 +19,21 @@ async function readHTML(path: string) {
 export async function parse(path: string) {
   const htmlStr = await readHTML(path)
 
+  let root: nyaan.HTMLObj<keyof HTMLElementTagNameMap>;
   let opening: nyaan.HTMLObj<keyof HTMLElementTagNameMap> | null;
-  const editing: nyaan.HTMLObj<keyof HTMLElementTagNameMap>[] = []
-  const editted: nyaan.HTMLObj<keyof HTMLElementTagNameMap>[] = []
-  
+
   const parser = new Parser({
     onopentag(name: keyof HTMLElementTagNameMap, attributes) {
-      opening = createHTMLObj<typeof name>(name, attributes)
-      editing.unshift(opening)
+      const obj = createHTMLObj<typeof name>(name, attributes, root? false : true)
+      if (!root) {
+        root = obj
+      }
+
+      if (opening) {
+        opening.children.push(obj)
+      }
+
+      opening = obj
     },
     ontext(text) {
       if (opening) {
@@ -33,19 +41,16 @@ export async function parse(path: string) {
       }
     },
     onclosetag(tagname) {
-      if (opening.tagName === tagname) {
+      if (opening?.tagName === tagname) {
         opening = null
-      }
-
-      const index = editing.findIndex((nyaan) => nyaan.tagName === tagname)
-      editted.push(editing[index])
-      editing.splice(index, index+1) // Delete element finish edit.      
+      }  
+    },
+    onend() {
+      console.log(JSON.stringify(root, null , "\t"))
     }
   })
 
   parser.write(htmlStr)
   parser.end()
-
-  console.log(editted)
 }
 
